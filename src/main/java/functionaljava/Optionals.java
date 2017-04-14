@@ -48,7 +48,8 @@ public final class Optionals {
         //   Employee.getEmergencyContact.
         // * An emergency contact's name can be retrieved using
         //   EmergencyContact.getName.
-        return null;
+        return employee.getEmergencyContact()
+                .map(EmergencyContact::getName);
     }
 
     /**
@@ -78,7 +79,8 @@ public final class Optionals {
         //   Employee.getContactInformation.
         // * A home phone number can be retrieved from contact information using
         //   ContactInformation.getHomePhone.
-        return null;
+        return employee.getContactInformation()
+                .flatMap(ContactInformation::getHomePhone);
     }
 
     /**
@@ -106,7 +108,11 @@ public final class Optionals {
         //
         // See the solution:
         //     tutorial/optional/emptying_ex1_sltn.md
-        return null;
+        return employee.getEmergencyContact()
+                .filter(contact ->
+                        contact.getContactInformation()
+                        .filter(CONTACT_INFO_IS_EMPTY.negate())
+                        .isPresent());
     }
 
     /**
@@ -133,6 +139,8 @@ public final class Optionals {
         //
         // See the solution:
         //     tutorial/optional/conditional_ex1_sltn.md
+        employee.getEmergencyContact()
+                .ifPresent(allEmergencyContacts::add);
     }
 
     /**
@@ -157,7 +165,8 @@ public final class Optionals {
         //
         // See the solution:
         //     tutorial/optional/unwrapping_ex1_sltn.md
-        return null;
+        return name.getNickName()
+                .orElse(name.getGivenName());
     }
 
     /**
@@ -186,6 +195,7 @@ public final class Optionals {
         //
         // See the solution:
         //     tutorial/optional/unwrapping_ex2_sltn.md
-        return null;
+        return employee.getContactInformation()
+                .orElseGet(() -> contactInformationFetcher.apply(employee.getName()));
     }
 }

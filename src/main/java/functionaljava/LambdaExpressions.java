@@ -28,7 +28,7 @@ public final class LambdaExpressions {
         //
         // See the solution:
         //     tutorial/lambda_expressions/ex001_sol.md
-        return null;
+        return (x) -> x * x;
     }
 
     /**
@@ -55,7 +55,7 @@ public final class LambdaExpressions {
         //
         // See the solution:
         //     tutorial/lambda_expressions/ex002_sol.md
-        return null;
+        return (b, h) -> 0.5 * b * h;
     }
 
     /**
@@ -93,7 +93,14 @@ public final class LambdaExpressions {
         //
         // See the solution:
         //     tutorial/lambda_expressions/ex003_sol.md
-        return null;
+        return (n) -> {
+            long a = 0, b = 1;
+            for (long i = 0; i < n; ++i) {
+                b = b + a;
+                a = b - a;
+            }
+            return a;
+        };
     }
 
     /**
@@ -116,6 +123,12 @@ public final class LambdaExpressions {
         //
         // See the solution:
         //     tutorial/lambda_expressions/ex004_sol.md
-        return null;
+        return (s, c) -> {
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < c; i++) {
+                sb.append(s);
+            }
+            return sb.toString();
+        };
     }
 }

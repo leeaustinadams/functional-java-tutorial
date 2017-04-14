@@ -35,7 +35,7 @@ public class MethodReferences {
         //
         // See the solution:
         //     tutorial/method_references/static_ex1_sltn.md
-        return null;
+        return Math::hypot;
     }
 
     /**
@@ -76,7 +76,7 @@ public class MethodReferences {
                 .omitEmptyStrings()
                 .trimResults()
                 .withKeyValueSeparator(Splitter.on(keyValueSeparator).trimResults());
-        return null;
+        return mapSplitter::split;
     }
 
     /**
@@ -104,7 +104,7 @@ public class MethodReferences {
         //
         // See the solution:
         //     tutorial/method_references/unbound_ex1_sltn.md
-        return null;
+        return Collection::size;
     }
 
     /**
@@ -132,6 +132,6 @@ public class MethodReferences {
         //
         // See the solution:
         //     tutorial/method_references/constructor_ex1_sltn.md
-        return null;
+        return String::new;
     }
 }

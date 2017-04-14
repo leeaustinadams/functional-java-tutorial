@@ -7,13 +7,21 @@ import functionaljava.types.Office;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.partitioningBy;
 
 public final class Streaming {
     public static final Streaming INSTANCE = new Streaming();
@@ -46,7 +54,10 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/transforming_ex1_sltn.md
-        return null;
+        return integers
+                .stream()
+                .map(x -> x * x)
+                .collect(toList());
     }
 
     /**
@@ -75,7 +86,13 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/filtering_ex1_sltn.md
-        return null;
+        return employees
+                .stream()
+                .filter(employee -> employee.getLocation() == office)
+                .map(employee -> employee.getName())
+                .map(name -> name.getFamilyName())
+                .distinct()
+                .collect(toSet());
     }
 
     /**
@@ -114,7 +131,14 @@ public final class Streaming {
         Comparator<Name> nameComparator =
                 Comparator.comparing(Name::getFamilyName, String::compareToIgnoreCase)
                         .thenComparing(Name::getGivenName, String::compareToIgnoreCase);
-        return null;
+        Comparator<Employee> byNameAndStartDate =
+                Comparator.comparing(Employee::getName, nameComparator)
+                .thenComparing(Employee::getStartDate);
+
+        return employees
+                .stream()
+                .sorted(byNameAndStartDate)
+                .collect(toList());
     }
 
     /**
@@ -141,7 +165,9 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/grouping_ex1_sltn.md
-        return null;
+        return employees
+                .stream()
+                .collect(groupingBy(Employee::getLocation, counting()));
     }
 
     /**
@@ -182,7 +208,12 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/grouping_ex2_sltn.md
-        return null;
+        return employees
+                .stream()
+                .collect(groupingBy(Employee::getLocation,
+                                Collectors.collectingAndThen(
+                                        Collectors.maxBy(Comparator.comparing(Employee::getStartDate)),
+                                        employeeOption -> employeeOption.get())));
     }
 
     /**
@@ -214,7 +245,13 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/partitioning_ex1_sltn.md
-        return -1.0d;
+        final Map<Boolean, Long> partitionSizes = employees
+                .stream()
+                .collect(partitioningBy(e -> e.getStartDate().isBefore(date), Collectors.counting()));
+        final Long before = partitionSizes.getOrDefault(Boolean.TRUE, 0L);
+        final Long total = before + partitionSizes.getOrDefault(Boolean.FALSE, 0L);
+        
+        return (double) before / (double) Math.max(total, 1L);
     }
 
     /**
@@ -243,7 +280,9 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/partitioning_ex1_sltn.md
-        return null;
+        return employees
+                .stream()
+                .min(Comparator.comparing(Employee::getStartDate));
     }
 
     /**
@@ -277,7 +316,18 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/partitioning_ex1_sltn.md
-        return null;
+        final Optional<Employee> min = employees
+                .stream()
+                .min(Comparator.comparing(Employee::getStartDate));
+        if (min.isPresent()) {
+            final LocalDate startDate = min.get().getStartDate();
+            return employees
+                    .stream()
+                    .filter(employee -> employee.getStartDate() == startDate)
+                    .collect(toSet());
+        } else {
+            return new HashSet<>();
+        }
     }
 
     /**
@@ -309,6 +359,23 @@ public final class Streaming {
         //
         // See the solution:
         //     tutorial/streams/partitioning_ex1_sltn.md
-        return mostSeniorEmployees(employeeStream.collect(toList()));
+        return employeeStream
+                .collect(HashSet::new, 
+                        (Set<Employee> accumulator, Employee employee) -> {
+                            final Employee current = accumulator.iterator().hasNext() ? accumulator.iterator().next() : null;
+                            int result = 0;
+                            if (current != null) {
+                                result = employee.getStartDate().compareTo(current.getStartDate());
+                                if (result < 0) {
+                                    accumulator.clear();
+                                }
+                            }
+                            if (result <= 0) {
+                                accumulator.add(employee);
+                            }
+                        },
+                        (Set<Employee> accumulator, Set<Employee> employees) -> {
+                            accumulator.addAll(employees);
+                        });
     }
 }
